@@ -1,10 +1,10 @@
 import { Router, Response, Request } from 'express'
 import { Document } from 'mongoose';
-import db from '../database/index';
-import {userSchema, fields} from '../database/schema';
+import db from '../../database/index';
+import {fields} from '../../database/schema';
 import { google } from 'googleapis';
-import serviceAccount from '../firebase-key';
-import config from '../config';
+import serviceAccount from '../../firebase-key';
+import config from '../../config';
 const sheets = google.sheets("v4");
 const jwtClient = new google.auth.JWT({
     email: serviceAccount.client_email,
@@ -13,6 +13,9 @@ const jwtClient = new google.auth.JWT({
 })
 
 const router: Router = Router();
+
+
+
 
 // Utility Function
 // fields is imported;
@@ -44,7 +47,6 @@ const exportData = async () => {
     }) // throw
 }
 
-///
 
 
 
