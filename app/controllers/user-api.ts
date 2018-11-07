@@ -1,13 +1,10 @@
 import { Router, Response, Request } from 'express'
 import { Document } from 'mongoose';
-import db from '../database/index'
-import Faker from 'faker/locale/en_US';
-import { promisify } from 'util';
+import db from '../database/index';
+import {userSchema, fields} from '../database/schema';
 import { google } from 'googleapis';
 import serviceAccount from '../firebase-key';
 import config from '../config';
-import { analytics } from 'googleapis/build/src/apis/analytics';
-
 const sheets = google.sheets("v4");
 const jwtClient = new google.auth.JWT({
     email: serviceAccount.client_email,
@@ -18,7 +15,7 @@ const jwtClient = new google.auth.JWT({
 const router: Router = Router();
 
 // Utility Function
-const fields = ["time", "prefix", "gender", "name", "lname", "nickname", "tel", "imageURL"];
+// fields is imported;
 const user2array = (user: any) => {
     return fields.map(key => user[key]);
 }
@@ -30,7 +27,7 @@ const exportData = async () => {
             const request = {
                 auth: jwtClient,
                 spreadsheetId: config.spreadsheetId,
-                range: 'A2:H' + users.length + 1,
+                range: 'A2:T' + users.length + 1,
                 valueInputOption: "RAW",
                 requestBody: {
                     values: userArray
@@ -46,6 +43,7 @@ const exportData = async () => {
         }) // throw
     }) // throw
 }
+
 ///
 
 
@@ -57,43 +55,48 @@ router.get("/get", (req: Request, res: Response) => {
     })
 })
 
-router.get("/add-mock-user", (req: Request, res: Response) => {
-    const newUser = {
-        time: Date.now(),
-        prefix: Faker.random.arrayElement(["นาย", "นางสาว"]),
-        gender: Faker.random.arrayElement(["M", "F"]),
-        name: Faker.name.firstName(),
-        lname: Faker.name.lastName(),
-        nickname: Faker.name.firstName(),
-        tel: '000-000-0000',
-        age: Faker.internet.avatar(),
-    }
-    db.users.create(newUser).then((user: Document) => {
-        return res.send(user);
-    })
-        .catch((err: Error) => {
-            console.error(err);
-            return res.status(500).send("Error");
-        })
-})
+// router.get("/add-mock-user", (req: Request, res: Response) => {
+//     const newUser = {
+//         time: Date.now(),
+//         prefix: Faker.random.arrayElement(["นาย", "นางสาว"]),
+//         gender: Faker.random.arrayElement(["M", "F"]),
+//         name: Faker.name.firstName(),
+//         lname: Faker.name.lastName(),
+//         nickname: Faker.name.firstName(),
+//         tel: '000-000-0000',
+//         age: Faker.internet.avatar(),
+//     }
+//     db.users.create(newUser).then((user: Document) => {
+//         return res.send(user);
+//     })
+//         .catch((err: Error) => {
+//             console.error(err);
+//             return res.status(500).send("Error");
+//         })
+// })
 
 // called by google sheet
 router.post('/update-in', (req: Request, res: Response) => {
     try {
         const users: any[] = JSON.parse(req.body.data);
-        const nonEmpty = users.filter((user: any) => {
-            return !!user.name;
-        })
-        let promises = nonEmpty.map((user: any) => {
+        const promises = users.filter((user: any) => {
+            try {
+                return !(new db.users(user).validateSync());
+            }
+            catch (err) {
+                console.log(err); // just log what error;
+                return false;   
+            }
+        }).map(user => {
             // use some field as id
             console.log("updating ... ", user);
-            return db.users.findOneAndUpdate({ name: user.name }, user, { upsert: true }) // upsert = when create new row! 
+            return db.users.findOneAndUpdate({ name: user.name }, user, { upsert: true, runValidators: true }) // upsert = when create new row! 
         })
         Promise.all(promises).then((results: any[]) => {
         console.log("update ok")
         return res.send("OK");
         }).catch((err: Error) => {
-            console.log(err);
+            console.log(err.name);
             return res.status(500).send("Error");
         })
     }
@@ -153,6 +156,7 @@ router.get('/export', async (req: Request, res: Response) => {
         return res.status(500).send(err);
     })
 })
+
 
 
 
