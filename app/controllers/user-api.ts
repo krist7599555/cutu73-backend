@@ -80,23 +80,22 @@ router.post('/update-in', (req: Request, res: Response) => {
     try {
         const users: any[] = JSON.parse(req.body.data);
         const promises = users.filter((user: any) => {
-            try {
-                return !(new db.users(user).validateSync());
-            }
-            catch (err) {
-                console.log(err); // just log what error;
-                return false;   
-            }
+            const err =  (new db.users(user).validateSync());
+            if (!err) return true;
+            console.log(err)
+            return err;
         }).map(user => {
             // use some field as id
-            console.log("updating ... ", user);
-            return db.users.findOneAndUpdate({ name: user.name }, user, { upsert: true, runValidators: true }) // upsert = when create new row! 
+            return db.users.findOneAndUpdate({ name: user.name }, user, { upsert: true, runValidators: true }).catch(err => {
+                console.log('[update-in]',user, 'is invalid!'); 
+                return err;   // prevent rejection by catch so if some update fail other should still success
+            }) // upsert = when create new row! 
         })
         Promise.all(promises).then((results: any[]) => {
         console.log("update ok")
         return res.send("OK");
         }).catch((err: Error) => {
-            console.log(err.name);
+            console.log(err);
             return res.status(500).send("Error");
         })
     }

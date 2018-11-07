@@ -1,10 +1,10 @@
 import { Schema } from 'mongoose';
 
 export const fields = ['studentId', 'image', 'prefix', 'name', 'lastname', 'gender', 'year', 'faculty',
- 'facultyId', 'division', 'birthday', 'tel', 'lineID', 'facebook',
-  'instragram', 'isInRcu', 'RcuBuilding', 'RcuRoom', 'RcuBed']
+    'facultyId', 'division', 'birthday', 'tel', 'lineID', 'facebook',
+    'instragram', 'isInRcu', 'RcuBuilding', 'RcuRoom', 'RcuBed']
 
-export const userSchema = new Schema({   
+export const userSchema = new Schema({
     studentId: {
         type: String,
         required: true,
@@ -107,26 +107,26 @@ export const userSchema = new Schema({
     RcuBuilding: {
         type: String,
         required: [
-            function () {
-            // @ts-ignore
-            return this.isInRcu == 'อยู่';
-        }, 'required if stay in RCU']
+            () => {
+                // @ts-ignore
+                return this.isInRcu == 'อยู่';
+            }, 'required if stay in RCU']
     },
     RcuRoom: {
         type: String,
         required: [
-            function () {
-            // @ts-ignore
-            return this.isInRcu == 'อยู่';
-        }, 'required if stay in RCU']
+            () => {
+                // @ts-ignore
+                return this.isInRcu == 'อยู่';
+            }, 'required if stay in RCU']
     },
     RcuBed: {
         type: String,
         required: [
-            function () {
-            // @ts-ignore
-            return this.isInRcu == 'อยู่';
-        }, 'required if stay in RCU']
+            () => {
+                // @ts-ignore
+                return this.isInRcu == 'อยู่';
+            }, 'required if stay in RCU']
     },
 })
 
