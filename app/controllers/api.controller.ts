@@ -1,10 +1,14 @@
 import {Request, Response, Router} from 'express';
-import {UserAPI} from './user-api';
+import UserAPI from './user/index';
 
 const router: Router = Router();
 
 router.use('/user', UserAPI);
-router.post('/pipe', (req: Request, res: Response) => {
+
+
+
+// this just output any body sent to it
+router.post('/debug', (req: Request, res: Response) => {
     console.log(req.body);
     return res.send("OK");
 });
