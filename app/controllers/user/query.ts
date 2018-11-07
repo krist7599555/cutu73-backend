@@ -1,15 +1,22 @@
 import {Router, Request, Response} from "express"
 import db from "../../database/index";
 import {Document} from "mongoose"
+import _ from 'lodash';
 
 const router : Router = Router();
 
 // register a new user
 router.get("/get-all", (req : Request, res : Response) => {
-    const limit : Number = req.query.limit || 50;
-    // need to validate user
+    let {limit} = req.query;
+    
+    limit = _.parseInt(limit);
 
-    db.users.find().then((docs: Document[]) => {
+    if (!limit) return res.status(400).send({
+        success: false,
+        msg: "you need to specify query"
+    })
+
+    db.users.find().limit(limit).then((docs: Document[]) => {
         return res.send({
             success: true,
             msg: "OK",
@@ -26,8 +33,15 @@ router.get("/get-all", (req : Request, res : Response) => {
 })
 
 router.post("/get", (req: Request, res: Response) => {
-    const filter = req.body.filter;
-    const limit = req.body.limit || 50; 
+    let {filter, limit} = req.body;
+
+    filter = _.attempt(JSON.parse, filter);
+    limit = _.parseInt(limit); 
+
+    if (_.isError(filter) || !limit) return res.status(400).send({
+        success: false,
+        msg: "bad limit or filter",
+    }) 
 
     db.users.find(filter).limit(limit).then((docs: Document[]) => {
         return res.send({
