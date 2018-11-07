@@ -14,6 +14,9 @@ const requireAuthen = (req: Request, res: Response, next: NextFunction) => {
             msg: "please enter password",
         })
     }
+    else {
+        next();
+    }
 }
 
 router.use(requireAuthen)
