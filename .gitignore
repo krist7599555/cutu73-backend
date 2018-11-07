@@ -1,0 +1,7 @@
+**/node_modules/**
+# build output
+/build/
+
+# config key files
+/app/config.ts
+/app/firebase-key.ts
