@@ -135,5 +135,38 @@ router.get('/mock', (req: Request, res: Response) => {
     })
 })
 
+router.post('/mock', (req: Request, res: Response) => {
+    let {data} = req.body;
+
+    data = _.attempt(() => JSON.parse(data));
+    if (_.isError(data) || _.isArrayLike(data)) {
+        return res.status(400).send({
+            success: false,
+            msg: "bad request"
+        })
+    }
+
+    const newUser = new db.users(_.assign(generateUser(), data));
+
+    newUser.save().then(() => {
+        return res.send({
+            success: true,
+            msg: "OK",
+        })
+    }).catch((err) => {
+        if (err.code == 11000){
+            return res.status(500).send({
+                success: false,
+                msg: "duplicate key"
+            })
+        }
+        console.error("[E] [MOCK-USER]", err);
+        return res.status(500).send({
+            success: false,
+            msg: "something went wrong"
+        })
+    })
+})
+
 export default router;
 
