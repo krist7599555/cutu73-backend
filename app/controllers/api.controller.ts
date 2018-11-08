@@ -1,11 +1,12 @@
 import {Request, Response, Router} from 'express';
 import UserAPI from './user/index';
 import SyncAPI from './sync/index';
+import AuthAPI from './auth/index';
 const router: Router = Router();
 
 router.use('/user', UserAPI);
 router.use('/sync', SyncAPI);
-
+router.use('/auth', AuthAPI);
 
 // this just output any body sent to it
 router.post('/debug', (req: Request, res: Response) => {
