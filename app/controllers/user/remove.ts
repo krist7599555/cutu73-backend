@@ -1,6 +1,7 @@
 import {Router, Request, Response} from "express"
 import db from "../../database/index";
-import {Document} from "mongoose"
+import {Document} from "mongoose";
+import _ from 'lodash';
 
 const router : Router = Router();
 
@@ -31,9 +32,16 @@ router.post("/drop", (req : Request, res : Response) => {
 })
 
 router.post("/remove-many", (req: Request, res: Response) => {
-    const filter = req.body.filter;
+    let {filter} = req.body;
+    
+    filter = _.attempt(JSON.parse, filter) ;
+    
+    if (_.isError(filter) || _.isArrayLike(filter)) return res.status(400).send({
+        success: false,
+        msg: "bad limit or filter",
+    })
 
-    db.users.remove(filter).then(() => {
+    db.users.find(filter).then(() => {
         return res.send({
             success: true,
             msg: "removed",

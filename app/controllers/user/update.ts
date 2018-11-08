@@ -1,13 +1,24 @@
 import { Router, Request, Response } from "express"
 import db from "../../database/index";
-import { Document } from "mongoose"
+import { Document } from "mongoose";
+import _ from 'lodash';
 
 const router: Router = Router();
 
 
 // prevent accidentially update many
 router.post("/update-one", (req: Request, res: Response) => {
-    const { filter, update, upsert } = req.body;
+    let { filter, update, upsert } = req.body;
+
+    filter = _.attempt(JSON.parse, filter);
+    update = _.attempt(JSON.parse, update);
+    upsert = upsert === 'true' ? true : false;
+
+    if (_.isError(filter) || _.isArray(filter) || _.isError(update) || _.isArray(update))  return res.status(400).send({
+        success: false,
+        msg: "bad filter or update",
+    })
+
 
     db.users.find(filter).then((docs: Document[]) => {
         if (docs.length === 0) {
@@ -41,7 +52,7 @@ router.post("/update-one", (req: Request, res: Response) => {
             }) // let them catch
         }
     }).catch((err: Error) => {
-        console.error("[E] [QUERY]", err);
+        console.error("[E] [UPDATE-ONE]", err);
         return res.status(500).send({
             success: false,
             msg: "something went wrong",
@@ -50,16 +61,24 @@ router.post("/update-one", (req: Request, res: Response) => {
 })
 
 router.post("/update-many", (req: Request, res: Response) => {
-    const { filter, update, upsert } = req.body;
+    let { filter, update, upsert } = req.body;
+
+    filter = _.attempt(JSON.parse, filter);
+    update = _.attempt(JSON.parse, update);
+    upsert = upsert === 'true' ? true : false;
+    
+    if (_.isError(filter) || _.isArray(filter) || _.isError(update) || _.isArray(update))  return res.status(400).send({
+        success: false,
+        msg: "bad filter or update",
+    })
 
     db.users.find(filter).then((docs: Document[]) => {
         if (docs.length === 0) {
-            return res.status(404).send({
+            return res.status(200).send({
                 success: true,
                 msg: "no value to update",
             })
-        } 
-        else if (docs.length > 1){
+        } else if (docs.length > 1){
             return res.status(400).send({
                 success: true,
                 msg: "ambiguos filter, must have only one value to update",
@@ -74,7 +93,7 @@ router.post("/update-many", (req: Request, res: Response) => {
             }) // let them catch
         }
     }).catch((err: Error) => {
-        console.error("[E] [QUERY]", err);
+        console.error("[E] [UPDATE-MANY]", err);
         return res.status(500).send({
             success: false,
             msg: "something went wrong",
