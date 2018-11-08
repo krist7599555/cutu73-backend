@@ -36,14 +36,14 @@ router.post('/login', (req, res) => {
         })
         .then(result => {
             const ticket = _.attempt(() => JSON.parse(result.text).ticket);
-            if (_.isError(ticket))
+            if (!_.isError(ticket))
                 return res.cookie('ticket', ticket, { maxAge: 86400 * 14, path: '/' }).status(200).send("OK");
             else
                 return res.clearCookie('ticket').status(401).send("Username/Password Error")
         })
         .catch(err => {
-            console.error(err);
-            return res.status(401).send(err);
+            console.error("[E] [LOGIN]", err);
+            return res.status(500).send("something went wrong");
         })
 })
 
@@ -58,28 +58,25 @@ const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
             'DeeTicket': ticket
         })
         .then((result: requests.Response) => {
-            if (result.status === 200) {
-                // @ts-ignore
-                req.user = JSON.parse(result.text);
-                /* Example response is {
-                    "uid": "5af5517aa7b11b000154e15d", "username": "60xxxxxx",
-                    "gecos": "Name LastName, faculty",
-                    "email": "60xxxxxxyy@student.chula.ac.th",
-                    "disable": false,
-                    "roles": [
-                        "student"
-                    ],
-                    "firstname": "xxxxxx",
-                    "lastname": "xxxxxx",
-                    "firstnameth": "xxxxxx",
-                    "lastnameth": "xxxxxxx",
-                    "ouid": "60xxxxxxyy"
-                } */
-                next();
-            }
-            else {
-                return res.status(401).send("invalid ticket");
-            }
+            // @ts-ignore
+            req.user = JSON.parse(result.text);
+            /* Example response is {
+                "uid": "5af5517aa7b11b000154e15d", "username": "60xxxxxx",
+                "gecos": "Name LastName, faculty",
+                "email": "60xxxxxxyy@student.chula.ac.th",
+                "disable": false,
+                "roles": [
+                    "student"
+                ],
+                "firstname": "xxxxxx",
+                "lastname": "xxxxxx",
+                "firstnameth": "xxxxxx",
+                "lastnameth": "xxxxxxx",
+                "ouid": "60xxxxxxyy"
+            } */
+            next();
+        }).catch((err: Error) => { // catch 401 resp
+            return res.status(401).send("invalid ticket");
         })
 }
 
@@ -87,8 +84,11 @@ router.get('/getUserInfo', userMiddleware, (req: Request, res: Response) => {
     // @ts-ignore
     const userData = req.user;
     db.users.findOne({ studentId: userData.ouid }).then(doc => {
-        if (doc === null) 
-            return res.status(200).send({registered: false, basicData: userData})
+        if (doc === null)
+            return res.status(200).send({
+                registered: false,
+                basicData: userData
+            })
         else {
             return res.status(200).send({
                 registered: true,
@@ -96,7 +96,29 @@ router.get('/getUserInfo', userMiddleware, (req: Request, res: Response) => {
                 data: doc,
             });
         }
+    }).catch((err: Error) => {
+        console.error("[E] [GET-USER-INFO]", err);
+        return res.status(500).send({}) // send nothing
     })
 })
 
+
+router.post('/register', userMiddleware, (req: Request, res: Response) => {
+    // TODO: unset some locked fields
+    // @ts-ignore
+    const studentId = req.user.ouid;
+    let { data } = req.body;
+    data = _.attempt(() => new db.users(JSON.parse(data)));
+
+    if (_.isError(data) || _.isError(data.validateSync())) return res.status(400).send("bad request");
+    if (data.studentId != studentId) return res.status(400).send("bad request studentId");
+    db.users.create(data).then(() => {
+        return res.send('register success');
+    }).catch((err) => {
+        if (err.code == 11000) // duplicate key error 
+            return res.status(403).send("you've already registered");
+        console.error("[E] [REGISTER]", err);
+        return res.status(500).send("something went wrong");
+    })
+});
 export default router;
