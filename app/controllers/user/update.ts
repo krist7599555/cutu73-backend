@@ -72,25 +72,27 @@ router.post("/update-many", (req: Request, res: Response) => {
         msg: "bad filter or update",
     })
 
-    db.users.find(filter).then((docs: Document[]) => {
+    // count only
+    db.users.find(filter).lean().select({"_id": 1}).then((docs: Document[]) => {
         if (docs.length === 0) {
             return res.status(200).send({
                 success: true,
                 msg: "no value to update",
             })
-        } else if (docs.length > 1){
-            return res.status(400).send({
-                success: true,
-                msg: "ambiguos filter, must have only one value to update",
-            })
         }
         else {
-            docs[0].update(update).then(() => {
-                return res.send({
+            db.users.updateMany(filter, update).then(() => {
+                return res.status(200).send({
                     success: true,
-                    msg: "OK",
+                    msg: `updated ${docs.length} record(s)`,
                 })
-            }) // let them catch
+            }).catch((err: Error) => {
+                console.error("[E] [UPDATE-MANY]", err);
+                return res.status(500).send({
+                    success: false,
+                    msg: "error",
+                })
+            })
         }
     }).catch((err: Error) => {
         console.error("[E] [UPDATE-MANY]", err);

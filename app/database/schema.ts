@@ -8,6 +8,7 @@ export const userSchema = new Schema({
     studentId: {
         type: String,
         required: true,
+        unique: true,
         validate: {
             validator: function (id: any) {
                 return /^[0-9]{10}$/.test(id)

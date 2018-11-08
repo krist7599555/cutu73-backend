@@ -20,6 +20,7 @@ function rowToObject(rowArray) {
 }
 
 function rodOnEdit(e) {
+  return ; // disable
     var sheet = e.range.getSheet();
     var range = e.range; // changed range
   //    var range = sheet.getDataRange();
