@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import logger from 'morgan';
@@ -13,6 +13,11 @@ app.use(logger('dev'));
 app.use(cookieParser());
 
 app.use('/api/v1', APIController);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    if (err)
+        res.status(500).send("Something went wrong");
+})
+
 app.listen(port, () => {
     console.log(`Server started on port ${port}`)
 })

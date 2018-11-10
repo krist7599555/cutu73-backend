@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import db from '../../database/index';
 import config, { digitalocean } from '../../config';
-import { upload, deleteFile } from './upload';
+import { upload, deleteFile, url2name, name2url } from './upload';
 import { digitalocean as DO } from "../../config";
 
 const router: Router = Router();
@@ -124,31 +124,33 @@ router.post('/register', userMiddleware, (req: Request, res: Response) => {
     })
 });
 
-router.post("/upload", userMiddleware, (req: Request, res: Response) => {
+
+
+
+router.post("/upload", userMiddleware, (req, res) => {
 
     // @ts-ignore
     const user = req.user;
-    console.log(user);
-    if (!user || user.re) return res.status(401).send("no ticket");
-    upload(req, res, async (err: Error) => {
-        if (err != null) {
-            return res.status(500).send("upload error");
-        }
-        else {
-            const filename = req.file.originalname;
-            const URL = `http://${DO.bucket}.${DO.endpoint}/${filename}`;
-            const doc : any = await db.users.findOne({studentId: user.ouid});
+    if (!user) return res.status(401).send("no ticket");
+    if (!user.registered) return res.status(401).send("unregistered");
 
-            deleteFile(doc.image.slice(`http://${DO.bucket}.${DO.endpoint}/`.length), (err: Error) => { 
-                console.log("new = ", URL)
-                doc!.update({image: URL}).then(() => {
-                    return res.send(URL);
+    upload(req, res, (err: Error) => {
+        if (err) return res.status(500).send("upload error");
+        else {
+            db.users.find({studentId: user.ouid}).then((doc: any) => {
+                doc.update({image: name2url(req.file.originalname)}).then(() => {
+                    deleteFile(url2name(doc.image), (err: Error) => {
+                        console.log(`[W] [UPLOAD] deleting ${url2name(doc.image)} failed`);
+                    })
+                    return res.send("upload ok");
                 }).catch((err: Error) => {
-                    return res.status(500).send("error -> image is still old");
+                    console.error("[E] [UPLOAD]", err);
+                    return res.status(500).send("error");
                 })
             })
         }
     })
+
 })
 
 

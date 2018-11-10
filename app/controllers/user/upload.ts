@@ -9,6 +9,8 @@ aws.config.update({
     secretAccessKey: DO.secretAccessKey
 });
 
+const prefix = `http://${DO.bucket}.${DO.endpoint}/`;
+const prefixLength = prefix.length;
 const router: Router = Router();
 
 export const upload = multer({
@@ -19,18 +21,23 @@ export const upload = multer({
         bucket: DO.bucket,
         acl: "public-read",
         key: function (request: Request, file, cb) {
+            if (!file || !file.originalname) cb(new Error("No file")); // no file uploaded
             // @ts-ignore
             const user = request.user;
             bcrypt.hash(user.ouid, 8).then(hash => {
-                hash = hash.replace(/[\\\/]/, '_'); // prevent / and \ in file_name
+                hash = hash.replace(/[\\\/.]/, '_'); // prevent / . and \ in file_name
                 file.originalname = `${hash}.jpg`;
                 console.log('multer S3 listen', file);
                 cb(null , file.originalname);
             }).catch((err: Error) => {
-                cb(err, "");
+                cb(err);
             });
         },
     }),
+    limits: {
+        fileSize: 2000000, // 2 MB
+        files: 1,
+    }
 }).single('file');
 
 export const deleteFile = (async (name: string, callback: any) => {
@@ -41,6 +48,9 @@ export const deleteFile = (async (name: string, callback: any) => {
     // @ts-ignore
     s3.deleteObject(params, callback)
 })
+
+export const name2url = (name: string) => `${prefix}/${name}`
+export const url2name = (url: string) => url.slice(prefixLength);
 // take 1 file from field name "image"
 // }).array('image', 1); // take <= 1 file which name is "image"
 // }).array('image', 5); // take <= 5 file which name is "image"
