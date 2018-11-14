@@ -7,7 +7,7 @@ export const fields = ['studentId', 'image', 'prefix', 'name', 'lastname', 'gend
 export const userSchema = new Schema({
     studentId: {
         type: String,
-        required: true,
+        // required: true,
         unique: true,
         validate: {
             validator: function (id: any) {
@@ -22,15 +22,15 @@ export const userSchema = new Schema({
     prefix: {
         type: String,
         enum: ['นาย', 'นาง', 'นางสาว'],
-        required: true,
+        // required: true,
     },
     name: {
         type: String,
-        required: true,
+        // required: true,
     },
     lastname: {
         type: String,
-        required: true,
+        // required: true,
     },
     gender: {
         type: String,
@@ -38,21 +38,21 @@ export const userSchema = new Schema({
     },
     year: {
         type: Number,
-        required: true,
+        // required: true,
         min: 1,
         max: 6,
     },
     faculty: {
         type: String,
-        required: true, // can't select by user
+        // required: true, // can't select by user
     },
     facultyId: {
         type: String,
-        required: true,// can't select by user
+        // required: true,// can't select by user
     },
     division: {
         type: String,
-        required: true,
+        // required: true,
         enum: [
             "ผู้เข้าร่วมงาน",
             "บัตรและอุปกรณ์",
@@ -78,11 +78,11 @@ export const userSchema = new Schema({
     },
     birthday: {
         type: Date,
-        required: true,
+        // required: true,
     },
     tel: {
         type: String,
-        required: true,
+        // required: true,
         validate: {
             validator: function (tel: string) {
                 return /^0[0-9]{2}-[0-9]{3}-[0-9]{4}$/.test(tel) ||
@@ -102,32 +102,32 @@ export const userSchema = new Schema({
     },
     isInRcu: {
         type: String,
-        required: true,
+        // required: true,
         enum: ["ไม่อยู่", "อยู่"],
     },
     RcuBuilding: {
         type: String,
-        required: [
-            () => {
-                // @ts-ignore
-                return this.isInRcu == 'อยู่';
-            }, 'required if stay in RCU']
+        // required: [
+            // () => {
+            //     // @ts-ignore
+            //     return this.isInRcu == 'อยู่';
+            // required if stay in RCU']
     },
     RcuRoom: {
         type: String,
-        required: [
-            () => {
-                // @ts-ignore
-                return this.isInRcu == 'อยู่';
-            }, 'required if stay in RCU']
+        // required: [
+            // () => {
+            //     // @ts-ignore
+            //     return this.isInRcu == 'อยู่';
+            // required if stay in RCU']
     },
     RcuBed: {
         type: String,
-        required: [
-            () => {
-                // @ts-ignore
-                return this.isInRcu == 'อยู่';
-            }, 'required if stay in RCU']
+        // required: [
+            // () => {
+            //     // @ts-ignore
+            //     return this.isInRcu == 'อยู่';
+            // required if stay in RCU']
     },
-})
+}, { strict: false })
 
