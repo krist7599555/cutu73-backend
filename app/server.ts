@@ -21,6 +21,7 @@ app.use(cookieParser());
 
 app.use('/api/v1', APIController);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(err);
     if (err)
         res.status(500).send("Something went wrong");
 })
