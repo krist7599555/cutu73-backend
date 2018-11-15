@@ -124,7 +124,9 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
   // @ts-ignore
   const studentId = req.user.ouid;
   let { form } = req.body;
-  console.log("FORM =", form);
+  form = JSON.parse(form);
+  console.log("FORM =");
+  console.log(form);
   if (
     _.isError(form) ||
     (form && form.validateSync && _.isError(form.validateSync()))
@@ -134,7 +136,7 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
   if (form.studentId != studentId)
     return res.status(400).send("bad request studentId");
   db.users
-    .create(form)
+    .update({userId: studentId} , form)
     .then(() => {
       return res.send("register success");
     })
@@ -152,7 +154,7 @@ router.post("/upload", userMiddleware, upload.single("image"), function(
   response
 ) {
   // @ts-ignore
-  console.log("File uploaded successfully.", request.file, request.filename);
+  console.log("File uploaded successfully. filename ", request.filename);
   response
     .status(200)
     // @ts-ignore
