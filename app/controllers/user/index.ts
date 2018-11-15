@@ -124,7 +124,7 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
   // @ts-ignore
   const studentId = req.user.ouid;
   let { form } = req.body;
-  form = JSON.parse(form);
+  if (typeof form == "string") form = JSON.parse(form);
   console.log("FORM =");
   console.log(form);
   if (
@@ -136,7 +136,7 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
   if (form.studentId != studentId)
     return res.status(400).send("bad request studentId");
   db.users
-    .update({userId: studentId} , form)
+    .update({ userId: studentId }, form, { upsert: true })
     .then(() => {
       return res.send("register success");
     })

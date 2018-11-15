@@ -1,8 +1,10 @@
 import { Schema } from 'mongoose';
 
-export const fields = ['studentId', 'image', 'prefix', 'name', 'lastname', 'gender', 'year', 'faculty',
-    'facultyId', 'division', 'birthday', 'tel', 'lineID', 'facebook',
-    'instragram', 'isInRcu', 'RcuBuilding', 'RcuRoom', 'RcuBed']
+// export const fields = ['studentId', 'image', 'prefix', 'name', 'lastname', 'gender', 'year', 'faculty',
+//     'facultyId', 'division', 'birthday', 'tel', 'lineID', 'facebook',
+//     'instragram', 'isInRcu', 'RcuBuilding', 'RcuRoom', 'RcuBed']
+
+export const fields = ["รหัสนิสิต", "image", "คำนำหน้า", "ชื่อ", "สกุล", "เพศ", "ชั้นปี", "คณะ", "รหัสคณะ", "วันเกิด", "เบอร์โทร", "lineID", "facebook", "instagram", "ฝ่าย", "หอใน"]
 
 export const userSchema = new Schema({
     studentId: {

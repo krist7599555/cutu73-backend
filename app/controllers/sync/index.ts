@@ -19,6 +19,13 @@ const router: Router = Router();
 // Utility Function
 // fields is imported;
 const user2array = (user: any) => {
+    console.log("USER TO ARRAY");
+    console.log(user)
+    console.log(Object.keys(user))
+    console.log(fields)
+    console.log("NEW SET")
+    console.log(new Set([...fields, ...Object.keys(user)]))
+    console.log(fields.map(key => user[key]));
     return fields.map(key => user[key]);
 }
 
@@ -32,7 +39,7 @@ const exportRange = (numRow: number, numCol: number) => {
 const exportData = async () => {
     jwtClient.authorize().then(() => {
         db.users.find().then((users: Document[]) => {
-            const userArray = users.map(user => user2array(user));
+            const userArray = users.map(user => user2array(user.toObject()));
             const request = {
                 auth: jwtClient,
                 spreadsheetId: config.spreadsheetId,
