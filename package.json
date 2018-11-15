@@ -32,6 +32,7 @@
   "scripts": {
     "tsc": "tsc",
     "dev": "nodemon --exec ts-node app/server.ts",
-    "serve": "tsc && node ./build/app/server.js"
+    "serve": "tsc && node ./build/app/server.js",
+    "production": "rsync -r ./app/* root@128.199.216.159:~/cutu73/app"
   }
 }
