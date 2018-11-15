@@ -11,14 +11,14 @@ aws.config.update({
   export const upload = multer({
     storage: multerS3({
       s3: new aws.S3({
-        endpoint: DO.endpoint
+        endpoint: DO.endpoint,
       }),
       bucket: DO.bucket,
       acl: "public-read",
       key: function(request, file, cb) {
         console.log('multer S3 listen =>', file);
         // @ts-ignore
-        cb(null, request.filename = file.originalname);
+        cb(null, request.filename = file.originalname = request.user.ouid);
       }
     })
   })
