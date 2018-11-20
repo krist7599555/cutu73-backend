@@ -11,7 +11,7 @@ const app = express(); // somehow i can't define type of this variable
 
 // with creditial, cors can not be *
 app.use(cors({
-    origin: [/localhost:/, /128.199.216.159:/, /.+/],
+    origin: [/./],
     credentials: true, // send cookies
 }));
 app.use(bodyParser.json());
