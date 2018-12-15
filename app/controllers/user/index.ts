@@ -84,21 +84,23 @@ router.post("/login", (req, res) => {
     referrer:
       "https://account.it.chula.ac.th/html/login.html?service=https%3A%2F%2Faccount.it.chula.ac.th%2Fhtml%2F&serviceName=Chula+SSO",
     referrerPolicy: "no-referrer-when-downgrade",
-    body:
-      `username=${username.slice(0, 8)}&password=${password}&service=https%3A%2F%2Faccount.it.chula.ac.th%2Fhtml%2F&serviceName=Chula+SSO`,
+    body: `username=${username.slice(
+      0,
+      8
+    )}&password=${password}&service=https%3A%2F%2Faccount.it.chula.ac.th%2Fhtml%2F&serviceName=Chula+SSO`,
     method: "POST",
     mode: "cors"
   })
-    .then(async (result) => {
+    .then(async result => {
       let txt = await result.text();
       console.log("LOGIN RESULT=", txt);
       let ticket = JSON.parse(txt).ticket;
       console.log("TICKET=", ticket);
       if (ticket)
         return res
-          .cookie("ticket", ticket, { maxAge: 86400 * 14, path: "/" })
+          .cookie("ticket", ticket, { maxAge: 1 * 60 * 60 * 1000, path: "/" })
           .status(200)
-          .send("OK");
+          .send(ticket);
       else
         return res
           .clearCookie("ticket")
@@ -131,7 +133,7 @@ const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
       // @ts-ignore
       req.user = JSON.parse(result.text);
       // @ts-ignore
-      console.log(result.text);
+      // console.log(result.text);
       /* Example response is {
           "uid": "5af5517aa7b11b000154e15d", "username": "60xxxxxx",
           "gecos": "Name LastName, faculty",
@@ -196,7 +198,7 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
   if (form.studentId != studentId)
     return res.status(400).send("bad request studentId");
   db.users
-    .update({ รหัสนิสิต: studentId }, form, { upsert: true })
+    .updateOne({ รหัสนิสิต: studentId }, form, { upsert: true })
     .then(() => {
       return res.send("register success");
     })
@@ -214,11 +216,12 @@ router.post("/upload", userMiddleware, upload.single("image"), function(
   response
 ) {
   // @ts-ignore
-  console.log("File uploaded successfully. filename ", request.filename);
+  const url = `http://${DO.bucket}.${DO.endpoint}/${request.filename}`;
+  console.log(`\tuploaded successfully (${url})`);
   response
     .status(200)
     // @ts-ignore
-    .send(`http://${DO.bucket}.${DO.endpoint}/${request.filename}`);
+    .send(url);
 });
 
 export default router;
