@@ -5,3 +5,8 @@
 # config key files
 /app/config.ts
 /app/firebase-key.ts
+app/controllers/user/card-generator/preset/hugsnan/output**
+dist/**
+**.DS_Store
+yarn.lock
+yarn-error.log

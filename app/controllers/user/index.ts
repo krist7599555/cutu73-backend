@@ -7,9 +7,21 @@ import db from "../../database/index";
 import config, { digitalocean } from "../../config";
 import { upload, deleteFile } from "./upload";
 import { digitalocean as DO } from "../../config";
-import Axios from "axios";
 import fetch from "isomorphic-fetch";
 import { json } from "body-parser";
+
+import { exec } from "child_process";
+async function sh(cmd: string) {
+  return new Promise((resolve: any, reject: any) => {
+    exec(cmd, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ stdout, stderr });
+      }
+    });
+  });
+}
 
 const router: Router = Router();
 const client = requests.agent();
@@ -91,7 +103,7 @@ router.post("/login", (req, res) => {
     method: "POST",
     mode: "cors"
   })
-    .then(async result => {
+    .then(async (result: any) => {
       let txt = await result.text();
       console.log("LOGIN RESULT=", txt);
       let ticket = JSON.parse(txt).ticket;
@@ -222,6 +234,40 @@ router.post("/upload", userMiddleware, upload.single("image"), function(
     .status(200)
     // @ts-ignore
     .send(url);
+});
+
+router.get("/card", (req, res) => {
+  return res.status(300).send({
+    message: "require /card/???"
+  });
+});
+router.get("/card/:ouid", (req, res) => {
+  const ouid = req.params.ouid;
+  db.users
+    .findOne({ studentId: ouid })
+    .then(async doc => {
+      if (doc === null)
+        return res.status(300).send({
+          message: "not found " + ouid
+        });
+      else {
+        const cd =
+          "cd /root/cutu73/app/controllers/user/card-generator/preset/cutu73";
+        await sh(
+          cd + `&& echo "${JSON.stringify(doc).replace(/"/g, '\\"')}" > tmp.txt`
+        );
+        return await sh(
+          cd +
+            `&& python3 run.py < tmp.txt && cp ./output/${ouid}.png ~/filesharing/cutu73/cards`
+        )
+          .then(stdouterr => res.status(200).send({ ...stdouterr }))
+          .catch(error => res.status(300).send(error));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      return res.sendStatus(400);
+    });
 });
 
 export default router;

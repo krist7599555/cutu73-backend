@@ -1,0 +1,131 @@
+[
+  {
+    "type": "output",
+    "name": "{filename}.png",
+    "directory": "output"
+  },
+  {
+    "type": "background",
+    "value": "template.png",
+    "size": {
+      "x": 1200,
+      "y": 1800
+    }
+  },
+  {
+    "type": "image",
+    "value": "{image}",
+    "ratio": true,
+    "position": {
+      "x1": 350,
+      "x2": 850,
+      "y1": 230,
+      "y2": 1600
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    },
+    "gradient": true
+  },
+  {
+    "type": "text",
+    "value": "{name}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 350,
+      "color": "#2c357c"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 630,
+      "y": 880
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    }
+  },
+  {
+    "type": "text",
+    "value": "{name}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 350,
+      "color": "#cb367c"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 615,
+      "y": 875
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    }
+  },
+  {
+    "type": "text",
+    "value": "{name}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 350,
+      "color": "#ffffff"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 600,
+      "y": 870
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    }
+  },
+  {
+    "type": "text",
+    "value": "{faculty} #{year}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 200,
+      "color": "#ffffff"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 600,
+      "y": 1160
+    },
+    "align": {
+      "x": "center",
+      "y": "top"
+    }
+  },
+  {
+    "type": "text",
+    "value": "{position} {role}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 200,
+      "color": "#ffffff"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 600,
+      "y": 1360
+    },
+    "align": {
+      "x": "center",
+      "y": "top"
+    }
+  }
+]

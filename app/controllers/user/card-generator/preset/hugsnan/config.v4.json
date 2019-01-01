@@ -1,0 +1,127 @@
+[
+  {
+    "type": "output",
+    "name": "{filename}.png",
+    "directory": "output"
+  },
+  {
+    "type": "background",
+    "value": "template.png",
+    "size": {
+      "x": 1200,
+      "y": 1800
+    }
+  },
+  {
+    "type": "text",
+    "value": "{name}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 400,
+      "color": "#ffffff"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 600,
+      "y": 730
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    },
+    "dropshadow": {
+      "offset": 50,
+      "blur": 18,
+      "color": "#363636e8",
+      "position": {
+        "x": -2,
+        "y": 8
+      }
+    }
+  },
+  {
+    "type": "text",
+    "value": "{faculty} #{year}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 200,
+      "color": "#ffffff"
+    },
+    "size": {
+      "x": 1000
+    },
+    "position": {
+      "x": 600,
+      "y": 1030
+    },
+    "align": {
+      "x": "center",
+      "y": "top"
+    },
+    "dropshadow": {
+      "offset": 50,
+      "blur": 15,
+      "color": "#363636e8",
+      "position": {
+        "x": -2,
+        "y": 8
+      }
+    }
+  },
+  {
+    "type": "text",
+    "value": "{g6}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 100,
+      "color": "#ffffff"
+    },
+    "size": {},
+    "position": {
+      "x": 330,
+      "y": 1670
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    },
+    "dropshadow": {
+      "offset": 15,
+      "blur": 10,
+      "color": "#00000050",
+      "position": {
+        "x": -2,
+        "y": 8
+      }
+    }
+  },
+  {
+    "type": "text",
+    "value": "{g8}",
+    "font": {
+      "family": "../../fonts/chulalongkornreg-webfont.ttf",
+      "size": 100,
+      "color": "#ffffff"
+    },
+    "size": {},
+    "position": {
+      "x": 870,
+      "y": 1670
+    },
+    "align": {
+      "x": "center",
+      "y": "center"
+    },
+    "dropshadow": {
+      "offset": 15,
+      "blur": 10,
+      "color": "#00000050",
+      "position": {
+        "x": -2,
+        "y": 8
+      }
+    }
+  }
+]
