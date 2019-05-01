@@ -10,10 +10,10 @@ http://localhost:3000/api/v1/
 
 ## path
 
-/user
-/sync
-/db
-/file
+- /user
+- /sync
+- /db
+- /file
 
 using cu sso for authenticate
 
