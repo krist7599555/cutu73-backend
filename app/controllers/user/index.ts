@@ -1,48 +1,14 @@
 import requests from "superagent";
 import { Router, Request, Response, NextFunction } from "express";
 import _ from "lodash";
-import axios from "axios";
-
 import db from "../../database/index";
-import config, { digitalocean } from "../../config";
-import { upload, deleteFile } from "./upload";
-import { digitalocean as DO } from "../../config";
+import config from "../../config";
 import fetch from "isomorphic-fetch";
-import { json } from "body-parser";
-
-import { exec } from "child_process";
-async function sh(cmd: string) {
-  return new Promise((resolve: any, reject: any) => {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ stdout, stderr });
-      }
-    });
-  });
-}
 
 const router: Router = Router();
 const client = requests.agent();
 
 const url = "https://account.it.chula.ac.th";
-// const HEADER = {
-//   Host: "account.it.chula.ac.th",
-//   Connection: "keep-alive",
-//   Accept: "application/json, text/javascript, */*; q=0.01",
-//   Origin: "https://account.it.chula.ac.th",
-//   "X-Requested-With": "XMLHttpRequest",
-//   "User-Agent":
-//     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-//   "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-//   Referer:
-//     "https://account.it.chula.ac.th/html/login.html?service=https%3A%2F%2Faccount.it.chula.ac.th%2Fhtml%2F&serviceName=Chula+SSO",
-//   "Accept-Encoding": "gzip, deflate, br",
-//   "Accept-Language": "en-US,en;q=0.9,th;q=0.8",
-//   // Cookie: "JSESSIONID=CE6365762F63DA35A5501B5336A74B0D" // I think session ID doesn't matter at all
-//   Cookie: "JSESSIONID=631EC3945D5AE7E67157F20A056E21A0" // I think session ID doesn't matter at all
-// };
 const HEADER = {
   Pragma: "no-cache",
   Origin: "https://account.it.chula.ac.th",
@@ -60,29 +26,11 @@ const HEADER = {
 };
 
 router.post("/login", (req, res) => {
+  // if (req.query && !req.query.force) {
+  // return res.status(405).send("ปิดระบบ");
+  // }
   let { username, password } = req.body;
-  console.log("LOGIN =", username, password);
-  // client
-  //   .post(`${url}/login`)
-  //   .set(HEADER)
-  //   .send({
-  //     service: "http://chula.ml",
-  //     username: username.slice(0, 8),
-  //     password: password,
-  //     serviceName: "CUTU73"
-  //   })
-  // axios({
-  //   method: "POST",
-  //   url: url + "/login",
-  //   headers: HEADER,
-  //   withCredentials: false,
-  //   data: {
-  //     service: "http://128.199.216.159:1991",
-  //     serviceName: "Chula SSO",
-  //     username: username.slice(0, 8),
-  //     password: password,
-  //   }
-  // })
+  // console.log("LOGIN =", username, password);
   fetch("https://account.it.chula.ac.th/login", {
     credentials: "include",
     headers: {
@@ -105,9 +53,9 @@ router.post("/login", (req, res) => {
   })
     .then(async (result: any) => {
       let txt = await result.text();
-      console.log("LOGIN RESULT=", txt);
+      // console.log("LOGIN RESULT=", txt);
       let ticket = JSON.parse(txt).ticket;
-      console.log("TICKET=", ticket);
+      // console.log("TICKET=", ticket);
       if (ticket)
         return res
           .cookie("ticket", ticket, { maxAge: 1 * 60 * 60 * 1000, path: "/" })
@@ -126,14 +74,9 @@ router.post("/login", (req, res) => {
 });
 
 const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // return res.status(405).send("ปิดระบบ");
   const ticket = req.cookies.ticket;
   if (!ticket) return res.status(401).send("no ticket");
-  //   console.log(`${url}/serviceValidation`)
-  //   console.log(`
-  // DeeAppId:${config.appId},
-  // DeeAppSecret:${config.appSecret},
-  // DeeTicket:${ticket}
-  //   `)
   client
     .post(`${url}/serviceValidation`)
     .set({
@@ -145,7 +88,6 @@ const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
       // @ts-ignore
       req.user = JSON.parse(result.text);
       // @ts-ignore
-      // console.log(result.text);
       /* Example response is {
           "uid": "5af5517aa7b11b000154e15d", "username": "60xxxxxx",
           "gecos": "Name LastName, faculty",
@@ -163,7 +105,6 @@ const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
       next();
     })
     .catch((err: Error) => {
-      // catch 401 resp
       return res.status(401).send("invalid ticket");
     });
 };
@@ -193,22 +134,24 @@ router.get("/getUserInfo", userMiddleware, (req: Request, res: Response) => {
     });
 });
 
-router.post("/register", userMiddleware, (req: Request, res: Response) => {
-  // TODO: unset some locked fields
+router.post("/updateRole", (req, res) => {
+  let { ouid, ฝ่าย } = req.body;
+  if (!ouid || !ฝ่าย) return res.status(400).send("no ouid or ฝ่าย in " + JSON.stringify(req.body));
+  db.users
+    .updateOne({ รหัสนิสิต: ouid }, { ฝ่าย }, { upsert: true })
+    .then(() => db.users.findOne({ รหัสนิสิต: ouid }).then(doc => res.status(200).send(doc)));
+});
+router.post("/register", userMiddleware, (req, res) => {
   // @ts-ignore
   const studentId = req.user.ouid;
   let { form } = req.body;
   if (typeof form == "string") form = JSON.parse(form);
-  console.log("FORM =");
-  console.log(form);
-  if (
-    _.isError(form) ||
-    (form && form.validateSync && _.isError(form.validateSync()))
-  )
+  // console.log("FORM =");
+  // console.log(form);
+  if (_.isError(form) || (form && form.validateSync && _.isError(form.validateSync())))
     return res.status(400).send("bad request");
   form.studentId = form.รหัสนิสิต;
-  if (form.studentId != studentId)
-    return res.status(400).send("bad request studentId");
+  if (form.studentId != studentId) return res.status(400).send("bad request studentId");
   db.users
     .updateOne({ รหัสนิสิต: studentId }, form, { upsert: true })
     .then(() => {
@@ -223,24 +166,15 @@ router.post("/register", userMiddleware, (req: Request, res: Response) => {
     });
 });
 
-router.post("/upload", userMiddleware, upload.single("image"), function(
-  request,
-  response
-) {
-  // @ts-ignore
-  const url = `http://${DO.bucket}.${DO.endpoint}/${request.filename}`;
-  console.log(`\tuploaded successfully (${url})`);
-  response
-    .status(200)
-    // @ts-ignore
-    .send(url);
-});
-
 router.get("/card", (req, res) => {
   return res.status(300).send({
     message: "require /card/???"
   });
 });
+
+import shell from "shelljs";
+import { ConfigurationServicePlaceholders } from "aws-sdk/lib/config_service_placeholders";
+
 router.get("/card/:ouid", (req, res) => {
   const ouid = req.params.ouid;
   db.users
@@ -250,23 +184,74 @@ router.get("/card/:ouid", (req, res) => {
         return res.status(300).send({
           message: "not found " + ouid
         });
-      else {
-        const cd =
-          "cd /root/cutu73/app/controllers/user/card-generator/preset/cutu73";
-        await sh(
-          cd + `&& echo "${JSON.stringify(doc).replace(/"/g, '\\"')}" > tmp.txt`
+      else if (doc != null) {
+        // @ts-ignore
+        const convert = {
+          "27": "ครุฯ",
+          "38": "จิตวิทยา",
+          "32": "ทันตะ",
+          "34": "นิติ",
+          "28": "นิเทศ",
+          "36": "พยาบาล",
+          "26": "บัญชี",
+          "30": "แพทย์",
+          "33": "เภสัช",
+          "24": "รัฐศาสตร์",
+          "23": "วิทยา",
+          "39": "วิทย์กีฬา",
+          "21": "วิศวฯ",
+          "35": "ศิลปกรรม",
+          "29": "Econ",
+          "25": "สถาปัตย์",
+          "37": "สหเวช",
+          "31": "สัตวะ",
+          "22": "อักษร",
+          "40": "SAR"
+        };
+        const doc2 = doc.toObject();
+        // @ts-ignore
+        doc2["_facultyexl"] = convert[doc2["รหัสคณะ"]];
+        console.log(">>>>>");
+        console.log(doc2);
+        console.log(doc2["รหัสคณะ"]);
+        console.log(doc2["_facultyexl"]);
+        console.log("<<<<<");
+
+        shell.cd(
+          process.env.NODE_ENV == "production"
+            ? "/root/cutu73/app/controllers/user/card-generator/preset/cutu73"
+            : "~/Documents/cutu73-backend/app/controllers/user/card-generator/preset/cutu73"
         );
-        return await sh(
-          cd +
-            `&& python3 run.py < tmp.txt && cp ./output/${ouid}.png ~/filesharing/cutu73/cards`
+        shell.echo(JSON.stringify(doc2)).to("tmp.txt");
+        const genconf = shell.exec("python3 run.py < tmp.txt > newconfig.txt");
+        new Promise((resolve, reject) =>
+          shell.exec(
+            "python3 ../../main.py < newconfig.txt",
+            (code: number, stdout: string, stderr: string) => {
+              if (code == 0) {
+                shell.cp(`output/${ouid}.png`, `/root/filesharing/cutu73/card/${ouid}.png`);
+                return resolve(`/card/${ouid}.png`);
+              } else {
+                return reject(
+                  "error run python\n" +
+                    stdout +
+                    "\n" +
+                    stderr +
+                    "\n" +
+                    "we are on: " +
+                    shell.pwd().toString()
+                );
+              }
+            }
+          )
         )
-          .then(stdouterr => res.status(200).send({ ...stdouterr }))
-          .catch(error => res.status(300).send(error));
+          .then(txt => res.status(200).send(txt))
+          .catch(txt => res.status(400).send(txt));
       }
     })
     .catch(err => {
       console.error(err);
-      return res.sendStatus(400);
+      return res.status(400).send(err);
     });
 });
 

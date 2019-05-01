@@ -44,10 +44,11 @@ for filenumber, file in enumerate(files, 1):
         ddic[typ] = list(lis)
     for bg in ddic['background']:
         print('background', bg['value'])
+        req = requests.get(bg['value'])
+        print(req)
         # canvas = Image.open(bg['value'], "r")
-        canvas = Image.open(
-            BytesIO(requests.get(bg['value']).content)
-            if "http" in bg['value'] else bg['value'], "r")
+        ff = BytesIO(req.content) if "http" in bg['value'] else bg['value']
+        canvas = Image.open(ff, "r")
         if canvas.mode != 'RGBA':
             canvas = canvas.convert('RGBA')
 
@@ -131,7 +132,7 @@ for filenumber, file in enumerate(files, 1):
 
                 img = Image.open(
                     BytesIO(requests.get(href).content) if "http" in
-                    href else href)
+                    href else open(href, "rb"))
 
                 if img.mode != 'RGBA':
                     img = img.convert('RGBA')

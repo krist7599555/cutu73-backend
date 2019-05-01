@@ -6,7 +6,7 @@
   },
   {
     "type": "background",
-    "value": "template.png",
+    "value": "https://cutu73.sgp1.digitaloceanspaces.com/background/{background}.png",
     "size": {
       "x": 1200,
       "y": 1800
@@ -17,51 +17,32 @@
     "value": "{image}",
     "ratio": true,
     "position": {
-      "x1": 350,
-      "x2": 850,
-      "y1": 230,
-      "y2": 1600
+      "x1": 218,
+      "x2": 572,
+      "y1": 454,
+      "y2": 927
     },
     "align": {
       "x": "center",
       "y": "center"
     },
-    "gradient": true
+    "gradient": false
   },
   {
     "type": "text",
-    "value": "{name}",
+    "value": "{role}",
     "font": {
-      "family": "../../fonts/chulalongkornreg-webfont.ttf",
-      "size": 350,
-      "color": "#2c357c"
+      "family": "../../fonts/chulalongkornbold-webfont.ttf",
+      "size": 425,
+      "color": "#000000"
     },
     "size": {
-      "x": 1000
+      "y": 105,
+      "x": 455
     },
     "position": {
-      "x": 630,
-      "y": 880
-    },
-    "align": {
-      "x": "center",
-      "y": "center"
-    }
-  },
-  {
-    "type": "text",
-    "value": "{name}",
-    "font": {
-      "family": "../../fonts/chulalongkornreg-webfont.ttf",
-      "size": 350,
-      "color": "#cb367c"
-    },
-    "size": {
-      "x": 1000
-    },
-    "position": {
-      "x": 615,
-      "y": 875
+      "x": 395,
+      "y": 1027
     },
     "align": {
       "x": "center",
@@ -70,38 +51,18 @@
   },
   {
     "type": "text",
-    "value": "{name}",
+    "value": "{name} #{year}",
     "font": {
       "family": "../../fonts/chulalongkornreg-webfont.ttf",
-      "size": 350,
-      "color": "#ffffff"
+      "size": 240,
+      "color": "#000000"
     },
     "size": {
-      "x": 1000
+      "x": 280
     },
     "position": {
-      "x": 600,
-      "y": 870
-    },
-    "align": {
-      "x": "center",
-      "y": "center"
-    }
-  },
-  {
-    "type": "text",
-    "value": "{faculty} #{year}",
-    "font": {
-      "family": "../../fonts/chulalongkornreg-webfont.ttf",
-      "size": 200,
-      "color": "#ffffff"
-    },
-    "size": {
-      "x": 1000
-    },
-    "position": {
-      "x": 600,
-      "y": 1160
+      "x": 395,
+      "y": 1100
     },
     "align": {
       "x": "center",
@@ -110,18 +71,18 @@
   },
   {
     "type": "text",
-    "value": "{position} {role}",
+    "value": "{faculty}",
     "font": {
       "family": "../../fonts/chulalongkornreg-webfont.ttf",
-      "size": 200,
-      "color": "#ffffff"
+      "size": 300,
+      "color": "#000000"
     },
     "size": {
-      "x": 1000
+      "x": 360
     },
     "position": {
-      "x": 600,
-      "y": 1360
+      "x": 395,
+      "y": 1204
     },
     "align": {
       "x": "center",

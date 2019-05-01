@@ -10,3 +10,4 @@ dist/**
 **.DS_Store
 yarn.lock
 yarn-error.log
+app/controllers/user/card-generator/preset/cutu73/**
