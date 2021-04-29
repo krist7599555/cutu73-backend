@@ -24,7 +24,7 @@
     "express": "^4.16.4",
     "faker": "^4.1.0",
     "fs": "^0.0.1-security",
-    "googleapis": "34",
+    "googleapis": "39",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.11",
     "mongodb": "^3.1.13",
